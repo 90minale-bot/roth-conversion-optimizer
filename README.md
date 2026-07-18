@@ -1,8 +1,35 @@
-# Retirement Tax Optimizer
+# Retirement Rollover And Roth Conversion Optimizer
 
-Phase 2 working baseline for rollover, Roth conversion, retirement cash-flow, federal/state tax, estimated property tax, capital-gain-aware projections, relocation comparison, and scenario comparison planning.
+A Streamlit planning app for comparing retirement cash-flow, Roth conversion, tax, healthcare, estate, and relocation scenarios.
 
-This is an educational planning tool, not tax, legal, investment, or benefits advice. Tax rules are simplified in this baseline and should be reviewed before use for real decisions.
+This project is built as an educational planning model. It is not tax, legal, investment, benefits, or relocation advice. The tax logic is intentionally transparent and reviewable, but simplified enough that real decisions should be checked against current rules and qualified professionals.
+
+## What It Does
+
+- Projects annual retirement cash flow from the current age through the selected end age.
+- Models traditional 401(k), traditional IRA, Roth IRA, taxable brokerage, cash, and HSA balances.
+- Compares Roth conversion strategies, including no conversions, fixed annual conversions, bracket-fill conversions, and an aggressive pre-pension strategy.
+- Starts Roth conversions only at the modeled retirement age.
+- Estimates federal income tax, long-term capital gain tax, qualified dividend treatment, NIIT, Medicare IRMAA, state income tax, local tax, property tax, ACA bridge premiums, and estate exposure.
+- Compares relocation scenarios against a Maryland baseline and estimates additional dollars per year available in each modeled state.
+- Runs fixed-conversion grid searches with constraints for marginal tax rate, IRMAA, and ending cash.
+- Runs Monte Carlo simulations with random returns, bear-market stress scenarios, inflation shock, and dynamic spending guardrails.
+- Saves scenario summaries and exports full scenario packages for review.
+
+## Current Defaults
+
+The sidebar defaults are tuned for the current working case:
+
+- Current age: 50
+- Retirement age: 55
+- Traditional 401(k): $2,000,000
+- Traditional IRA: $100,000
+- Roth IRA: $350,000
+- Taxable brokerage: $500,000
+- Cash: $80,000
+- HSA: $25,000
+- Annual spending: $120,000
+- Modeled states: IL, PA, MD, DE, VA, FL
 
 ## Install
 
@@ -18,107 +45,93 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
+Local URL:
+
+```text
+http://localhost:8502/
+```
+
 ## Test
 
 ```bash
 pytest
 ```
 
-## Update Tax Data
+## App Tabs
+
+- Executive Summary: headline recommendation, lifetime tax/healthcare/estate metrics, and the annual projection table.
+- Recommended Conversion Plan: annual Roth conversions plus fixed-conversion grid search.
+- Annual Cash Flow: full annual projection and CSV/Excel export.
+- Federal Taxes: federal tax, capital gains, qualified dividends, and NIIT views.
+- State Taxes: state income tax, local tax, and estimated property tax by year.
+- Relocation Comparison: state-by-state comparison against Maryland, including additional dollars per year available.
+- Account Balances: projected cash, taxable, traditional, and Roth balances.
+- RMD Forecast: required minimum distribution projection.
+- ACA and Medicare: ACA bridge premiums, premium tax credits, IRMAA, and NIIT.
+- Estate and Legacy: estimated estate value and federal/state estate exposure.
+- Monte Carlo: randomized retirement outcomes and stress testing.
+- Scenario Comparison: strategy comparison, saved scenarios, and full JSON scenario packages.
+- Tax Data and Sources: reviewable tax inputs bundled with the app.
+- Assumptions and Warnings: model warnings and planning caveats.
+
+## Tax Data
+
+Tax inputs live in `tax_data/` as reviewable JSON files. The app currently includes 2026 planning data for:
+
+- Federal tax
+- Delaware
+- Florida
+- Illinois
+- Maryland
+- Pennsylvania
+- Virginia
+
+To create draft updates:
 
 ```bash
 python scripts/update_tax_data.py --year 2026
 python scripts/validate_tax_data.py
 ```
 
-The updater is intentionally conservative. It creates reviewable draft files instead of silently replacing reviewed data.
+The updater is conservative by design. It creates draft files for review rather than silently replacing reviewed tax assumptions.
 
 ## Add A State
 
-Add `tax_data/states/<STATE>/<YEAR>.json` with the same schema as the existing state files. The core engine reads state files generically, so calculation code does not need to change for flat-rate or bracket states.
+Add a file at:
 
-## Phase 3 Roadmap
+```text
+tax_data/states/<STATE>/<YEAR>.json
+```
 
-### Phase 3A: Hidden Retirement Tax Cliffs
-
-- Medicare IRMAA surcharge estimates with a two-year MAGI lookback.
-- Net Investment Income Tax estimates for dividends and long-term capital gains.
-- Summary and comparison tables that include tax-like cliff costs when ranking strategies.
-
-### Phase 3B: Healthcare Bridge
-
-- ACA subsidy and marketplace premium modeling before Medicare age.
-- Household-size and user-entered benchmark premium assumptions.
-- Warnings when Roth conversions create ACA subsidy cliffs.
-- A healthcare-aware objective that compares taxes plus ACA net premiums.
-
-### Phase 3C: More Realistic Tax Rules
-
-- More detailed Social Security edge cases.
-- Editable local income tax rate layer for county/city taxes.
-- State-specific retirement-income exclusions.
-- Partial-year relocation and residency handling.
-
-### Phase 3D: Estate And Legacy Exposure
-
-- Federal and selected state estate/inheritance tax warning layer.
-- Beneficiary-oriented ending-account mix summaries.
-- Roth-vs-traditional legacy value comparison.
-
-### Phase 3E: Optimizer Engine
-
-- Grid search across fixed annual conversion amounts and tax-cliff constraints.
-- Constraints for max federal bracket, max annual IRMAA, and minimum ending cash.
-- Future search across conversion windows, move ages, and minimum taxable liquidity.
-- Future dynamic-programming or mixed-integer optimizer once the tax model is stable.
-
-## Phase 4 Roadmap
-
-### Phase 4A: Monte Carlo Outcomes
-
-- Randomized annual account returns around each account's expected return.
-- Success-rate, ending-asset percentile, and tax-plus-healthcare distributions.
-- Downloadable simulation results for external review.
-
-### Phase 4B: Stress Testing
-
-- Early bear market and late bear market sequence-of-returns scenarios.
-- Optional three-year inflation shock.
-- Optional dynamic spending guardrail that trims spending after large portfolio drawdowns and modestly restores it after strong gains.
-
-## Phase 5 Roadmap
-
-### Phase 5A: Full Scenario Packages
-
-- Export the full household, account, strategy, optimizer, and Monte Carlo settings to JSON.
-- Save multiple full scenario packages in session state.
-- Preview uploaded scenario JSON for review before re-entry or future state restoration.
+Use the same schema as the existing state files. The state tax engine reads state files generically, so many flat-rate and bracketed state rules can be added through data instead of code.
 
 ## Known Limitations
 
-- 2026 tax data is stored separately with source metadata, but the bundled values are baseline planning data and flagged for manual review.
-- Estate and inheritance tax, Medicaid eligibility, state marketplace details, and lot-level capital-gain harvesting are approximate or warning-only in this baseline.
-- Local income tax uses editable state-level planning rates. Actual county, city, school-district, and earned-income tax rules should be verified locally.
-- Estate exposure uses planning estimates for federal estate tax and selected state estate taxes. It does not model trusts, portability elections, basis step-up, beneficiary-specific inheritance tax, marital/charitable deductions, lifetime taxable gifts, or titling.
-- IRMAA uses a reviewable 2026 planning table and first two projection years use current modeled MAGI unless prior tax-return MAGI is supplied in a future version.
-- NIIT uses the 3.8% federal rule on the lesser of net investment income or MAGI above the filing-status threshold, with simplified net investment income.
-- ACA premium tax credits use a simplified post-2025 baseline with 100%-400% FPL eligibility, bundled 2025 HHS poverty-guideline values as reviewable planning inputs, interpolated expected contribution percentages, and a user-entered benchmark silver premium.
-- Property tax uses editable state-level estimated effective rates against the modeled home value; actual bills depend on county, municipality, exemptions, and assessment rules.
-- Social Security taxation is implemented with the federal provisional-income formula but not every edge case.
-- Rule of 55 support warns about preserving employer-plan access; employer plan document restrictions must be confirmed manually.
-- Optimizer compares deterministic strategies, relocation years, and objectives, but is not yet a full mixed-integer or dynamic-programming solver.
-- Monte Carlo uses simplified normal-return assumptions and basic stress overlays. It does not model full asset-class correlations, stochastic tax law, behavioral spending choices, or detailed inflation baskets.
-- Full scenario package import is preview-only in Phase 5A; applying uploaded JSON back into every sidebar widget is planned for a later state-management pass.
+- The model is a planning estimate, not a tax engine.
+- 2026 tax values are bundled planning assumptions and should be manually reviewed.
+- State tax rules are simplified and may not capture every retirement-income exclusion or local rule.
+- Local tax uses editable state-level planning rates; actual city, county, school-district, and earned-income taxes should be verified separately.
+- ACA estimates use simplified premium tax credit logic, user-entered benchmark premiums, and bundled poverty-guideline assumptions.
+- IRMAA uses a simplified two-year MAGI lookback; the first two projection years use modeled MAGI when prior tax-return MAGI is not provided.
+- NIIT uses the 3.8% federal rule with simplified net investment income.
+- Estate exposure is a warning-level estimate. It does not model trusts, portability elections, basis step-up, beneficiary-specific inheritance tax, marital or charitable deductions, lifetime taxable gifts, or titling.
+- Property tax uses editable state-level effective rates against modeled home value; real bills depend on county, municipality, exemptions, and assessments.
+- Monte Carlo uses simplified normal-return assumptions and basic stress overlays rather than full asset-class correlations or stochastic tax law.
+- Uploaded scenario JSON is preview-only; applying uploads back into every sidebar widget remains a future state-management enhancement.
 
-## Phase 2 Additions
+## Practical Next Enhancements
 
-- Federal long-term capital gain and qualified dividend stacking.
-- Deterministic objective selector for lifetime tax, ending assets, Roth balance, and peak RMD.
-- Reusable strategy and relocation comparison modules.
-- Streamlit session-state scenario saving and CSV export.
-- Relocation heat map driven by the shared comparison engine.
-- Estimated property tax on a default $1M property, including editable appreciation and state rates.
+- Make uploaded scenario JSON fully restore sidebar inputs.
+- Add more detailed state retirement-income exclusions.
+- Add prior-year MAGI inputs for more precise IRMAA lookback modeling.
+- Add beneficiary-level legacy summaries.
+- Add official-source validation fixtures for tax data updates.
+- Expand the optimizer beyond fixed-conversion grid search.
 
-## Recommended Next Phase
+## Repository
 
-Phase 3A adds IRMAA and NIIT. Phase 3B adds simplified ACA bridge premium and subsidy modeling. Phase 3C starts with editable local income tax rates. Phase 3D adds first-pass estate exposure warnings. Phase 3E starts the constrained optimizer engine with fixed-conversion grid search. Phase 4A adds Monte Carlo outcome simulation. Phase 4B adds stress testing and spending guardrails. Phase 5A adds full scenario package export and preview import. The next phase should add more detailed Social Security, state-specific retirement exclusions, beneficiary-level legacy views, and official-source validation fixtures.
+GitHub:
+
+```text
+https://github.com/90minale-bot/roth-conversion-optimizer
+```
