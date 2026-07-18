@@ -1,0 +1,20 @@
+{
+  "current_age": 49,
+  "retirement_age": 55,
+  "projection_end_age": 95,
+  "traditional_retirement_assets": 2000000,
+  "taxable_brokerage": 250000,
+  "roth_assets": 150000,
+  "cash_assets": 80000,
+  "annual_retirement_spending": 120000,
+  "property_value": 1000000,
+  "property_appreciation": 0.02,
+  "pension_monthly": 5500,
+  "pension_start_age": 65,
+  "qualified_dividends": 6000,
+  "taxable_turnover_rate": 0.02,
+  "current_state": "IL",
+  "destination_state": "FL",
+  "move_age": 57,
+  "filing_status": "married_joint"
+}

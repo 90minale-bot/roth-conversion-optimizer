@@ -1,0 +1,7 @@
+__pycache__/
+.pytest_cache/
+.venv/
+*.pyc
+exports/
+tax_data/cache/
+tax_data/*/*/*.draft.json

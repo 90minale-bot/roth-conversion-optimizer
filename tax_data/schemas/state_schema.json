@@ -1,0 +1,1 @@
+{"required":["metadata","tax_type","treatment"],"note":"Phase 1 lightweight schema placeholder; extend with JSON Schema validation in Phase 5."}

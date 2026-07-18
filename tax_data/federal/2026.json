@@ -1,0 +1,67 @@
+{
+  "metadata": {
+    "tax_year": 2026,
+    "source_url": "https://www.irs.gov/newsroom/irs-releases-tax-inflation-adjustments-for-tax-year-2026",
+    "publication_date": "2025-10-09",
+    "retrieval_date": "2026-07-12",
+    "effective_tax_year": 2026,
+    "manual_review_required": true,
+    "assumptions": "Baseline ordinary income brackets and deductions for planning. Verify against final IRS revenue procedure before tax decisions."
+  },
+  "filing_statuses": {
+    "single": {
+      "standard_deduction": 16100,
+      "additional_senior_standard_deduction": 2050,
+      "ordinary_brackets": [
+        {"lower": 0, "upper": 12000, "rate": 0.10},
+        {"lower": 12000, "upper": 50400, "rate": 0.12},
+        {"lower": 50400, "upper": 105700, "rate": 0.22},
+        {"lower": 105700, "upper": 201775, "rate": 0.24},
+        {"lower": 201775, "upper": 256225, "rate": 0.32},
+        {"lower": 256225, "upper": 640600, "rate": 0.35},
+        {"lower": 640600, "upper": null, "rate": 0.37}
+      ],
+      "long_term_capital_gain_brackets": [
+        {"lower": 0, "upper": 48350, "rate": 0.0},
+        {"lower": 48350, "upper": 533400, "rate": 0.15},
+        {"lower": 533400, "upper": null, "rate": 0.20}
+      ]
+    },
+    "married_joint": {
+      "standard_deduction": 32200,
+      "additional_senior_standard_deduction": 1650,
+      "ordinary_brackets": [
+        {"lower": 0, "upper": 24000, "rate": 0.10},
+        {"lower": 24000, "upper": 100800, "rate": 0.12},
+        {"lower": 100800, "upper": 211400, "rate": 0.22},
+        {"lower": 211400, "upper": 403550, "rate": 0.24},
+        {"lower": 403550, "upper": 512450, "rate": 0.32},
+        {"lower": 512450, "upper": 768700, "rate": 0.35},
+        {"lower": 768700, "upper": null, "rate": 0.37}
+      ],
+      "long_term_capital_gain_brackets": [
+        {"lower": 0, "upper": 96700, "rate": 0.0},
+        {"lower": 96700, "upper": 600050, "rate": 0.15},
+        {"lower": 600050, "upper": null, "rate": 0.20}
+      ]
+    },
+    "head_of_household": {
+      "standard_deduction": 24150,
+      "additional_senior_standard_deduction": 2050,
+      "ordinary_brackets": [
+        {"lower": 0, "upper": 17150, "rate": 0.10},
+        {"lower": 17150, "upper": 64850, "rate": 0.12},
+        {"lower": 64850, "upper": 105700, "rate": 0.22},
+        {"lower": 105700, "upper": 201750, "rate": 0.24},
+        {"lower": 201750, "upper": 256200, "rate": 0.32},
+        {"lower": 256200, "upper": 640600, "rate": 0.35},
+        {"lower": 640600, "upper": null, "rate": 0.37}
+      ],
+      "long_term_capital_gain_brackets": [
+        {"lower": 0, "upper": 64750, "rate": 0.0},
+        {"lower": 64750, "upper": 566700, "rate": 0.15},
+        {"lower": 566700, "upper": null, "rate": 0.20}
+      ]
+    }
+  }
+}

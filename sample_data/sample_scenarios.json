@@ -1,0 +1,6 @@
+[
+  {"name": "Retire at 52 and remain in Illinois", "retirement_age": 52, "current_state": "IL", "destination_state": "IL", "strategy": "Fill 22% bracket"},
+  {"name": "Retire at 55 and move to Florida at 57", "retirement_age": 55, "current_state": "IL", "destination_state": "FL", "move_age": 57, "strategy": "Fill 22% bracket"},
+  {"name": "No Roth conversions", "retirement_age": 55, "strategy": "No Roth conversions"},
+  {"name": "Preserve employer 401(k) until 59.5", "preserve_rule_of_55_amount": 240000, "strategy": "Fill 12% bracket"}
+]
