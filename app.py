@@ -11,7 +11,7 @@ from retirement_optimizer.models.household import DEFAULT_LOCAL_INCOME_TAX_RATES
 from retirement_optimizer.optimization.deterministic import annualized_relocation_advantage, compare_conversion_strategies, compare_relocation_scenarios, recommend_strategy
 from retirement_optimizer.optimization.objectives import summarize_results
 from retirement_optimizer.optimization.scenarios import saved_scenario_row, scenario_package, scenario_package_summary, scenario_table
-from retirement_optimizer.optimization.search import search_fixed_conversion_grid
+from retirement_optimizer.optimization.search import optimize_dynamic_conversion_schedule, search_fixed_conversion_grid
 from retirement_optimizer.optimization.strategies import STRATEGIES
 from retirement_optimizer.projections.annual_projection import project_household, results_frame
 from retirement_optimizer.reporting.exports import to_excel_bytes
@@ -26,7 +26,7 @@ def money(value: float) -> str:
     return f"${value:,.0f}"
 
 
-def sidebar_household() -> tuple[Household, str, str, float, float, bool, float, float, float, float, int, float, int, str, bool, bool]:
+def sidebar_household() -> tuple[Household, str, str, float, float, bool, float, float, float, float, int, int, int, float, int, str, bool, bool]:
     st.sidebar.header("Personal")
     current_age = st.sidebar.number_input("Current age", 18, 100, 50)
     spouse_age_enabled = st.sidebar.checkbox("Include spouse age", value=False)
@@ -105,11 +105,13 @@ def sidebar_household() -> tuple[Household, str, str, float, float, bool, float,
         }
 
     st.sidebar.header("Optimization")
-    objective = st.sidebar.selectbox("Objective", ["Minimize lifetime taxes", "Minimize taxes + healthcare", "Maximize ending assets", "Maximize Roth balance", "Minimize peak RMD"])
+    objective = st.sidebar.selectbox("Objective", ["Minimize lifetime taxes", "Minimize taxes + healthcare", "Maximize ending assets", "Maximize Roth balance", "Minimize peak RMD", "Maximize after-tax estate value"])
     strategy = st.sidebar.selectbox("Conversion strategy", STRATEGIES, index=3)
     fixed_conversion = st.sidebar.number_input("Fixed annual Roth conversion", min_value=0.0, value=50_000.0, step=5_000.0)
     max_conversion = st.sidebar.number_input("Maximum annual Roth conversion", min_value=0.0, value=250_000.0, step=10_000.0)
     grid_step = st.sidebar.number_input("Grid search step", min_value=5_000.0, value=25_000.0, step=5_000.0)
+    dynamic_start_age = st.sidebar.number_input("Dynamic optimizer start age", 45, 75, 52)
+    dynamic_end_age = st.sidebar.number_input("Dynamic optimizer end age", 55, 85, 75)
     max_search_federal_rate = st.sidebar.slider("Grid max federal marginal rate", 0.10, 0.50, 0.24, 0.01)
     max_search_irmaa = st.sidebar.number_input("Grid max annual IRMAA", min_value=0.0, value=20_000.0, step=1_000.0)
     min_search_cash = st.sidebar.number_input("Grid minimum ending cash", min_value=0.0, value=0.0, step=5_000.0)
@@ -158,7 +160,7 @@ def sidebar_household() -> tuple[Household, str, str, float, float, bool, float,
     hh.accounts["taxable"].balance = taxable
     hh.accounts["cash"].balance = cash
     hh.accounts["hsa"].balance = hsa
-    return hh, strategy, objective, fixed_conversion, max_conversion, preserve_rule, grid_step, max_search_federal_rate, max_search_irmaa, min_search_cash, int(monte_carlo_runs), monte_carlo_volatility, int(monte_carlo_seed), stress_scenario, inflation_shock, spending_guardrail
+    return hh, strategy, objective, fixed_conversion, max_conversion, preserve_rule, grid_step, int(dynamic_start_age), int(dynamic_end_age), max_search_federal_rate, max_search_irmaa, min_search_cash, int(monte_carlo_runs), monte_carlo_volatility, int(monte_carlo_seed), stress_scenario, inflation_shock, spending_guardrail
 
 
 def summarize(df: pd.DataFrame) -> dict[str, float]:
@@ -205,7 +207,7 @@ if "saved_scenarios" not in st.session_state:
 if "saved_scenario_packages" not in st.session_state:
     st.session_state.saved_scenario_packages = []
 
-household, strategy, objective, fixed_conversion, max_conversion, preserve_rule, grid_step, max_search_federal_rate, max_search_irmaa, min_search_cash, monte_carlo_runs, monte_carlo_volatility, monte_carlo_seed, stress_scenario, inflation_shock, spending_guardrail = sidebar_household()
+household, strategy, objective, fixed_conversion, max_conversion, preserve_rule, grid_step, dynamic_start_age, dynamic_end_age, max_search_federal_rate, max_search_irmaa, min_search_cash, monte_carlo_runs, monte_carlo_volatility, monte_carlo_seed, stress_scenario, inflation_shock, spending_guardrail = sidebar_household()
 results = project_household(household, strategy=strategy, fixed_conversion=fixed_conversion, max_conversion=max_conversion, preserve_rule_of_55=preserve_rule)
 df = results_frame(results)
 summary = summarize(df)
@@ -254,6 +256,38 @@ with tabs[0]:
 with tabs[1]:
     st.plotly_chart(px.bar(df, x="age", y="roth_conversion", title="Annual Roth Conversions"), width="stretch")
     st.dataframe(df[["year", "age", "roth_conversion", "remaining_bracket_capacity", "marginal_federal_rate", "marginal_state_rate", "ending_traditional", "ending_roth"]], width="stretch")
+    st.subheader("Dynamic Conversion Optimizer")
+    dynamic_result = optimize_dynamic_conversion_schedule(
+        household,
+        objective=objective,
+        start_age=dynamic_start_age,
+        end_age=dynamic_end_age,
+        max_conversion=max_conversion,
+        step=grid_step,
+        preserve_rule_of_55=preserve_rule,
+        max_marginal_federal_rate=max_search_federal_rate,
+        max_annual_irmaa=max_search_irmaa,
+        min_ending_cash=min_search_cash,
+    )
+    dynamic_schedule = dynamic_result["schedule"]
+    dynamic_heatmap = dynamic_result["heatmap"]
+    dynamic_projection = dynamic_result["projection"]
+    dynamic_summary = summarize(dynamic_projection)
+    st.success(
+        f"Dynamic schedule by '{objective}': "
+        f"{money(dynamic_summary['total_tax_and_healthcare'])} lifetime tax + healthcare, "
+        f"{money(dynamic_summary['ending_assets'])} ending assets"
+    )
+    st.dataframe(dynamic_schedule, width="stretch")
+    if not dynamic_heatmap.empty:
+        st.plotly_chart(px.density_heatmap(
+            dynamic_heatmap,
+            x="age",
+            y="candidate_conversion",
+            z="objective_value",
+            title="Dynamic Optimizer Heat Map: Objective Value By Age And Candidate Conversion",
+        ), width="stretch")
+    st.plotly_chart(px.bar(dynamic_projection, x="age", y="roth_conversion", title="Dynamic Optimized Roth Conversions"), width="stretch")
     st.subheader("Fixed Conversion Grid Search")
     search_df = search_fixed_conversion_grid(
         household,

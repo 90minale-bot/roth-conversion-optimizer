@@ -29,6 +29,8 @@ This plan tracks the next evolution of the Retirement Rollover And Roth Conversi
 - Monte Carlo return simulations.
 - Early/late bear market stress tests, inflation shock, and spending guardrail.
 - CSV, Excel, Monte Carlo, and scenario JSON exports.
+- First-pass dynamic year-by-year Roth conversion optimizer.
+- Dynamic conversion heat map showing objective value by age and candidate conversion amount.
 
 ### Partially Implemented
 
@@ -36,8 +38,8 @@ This plan tracks the next evolution of the Retirement Rollover And Roth Conversi
 - State tax rules are data-driven, but retirement-income exclusions are simplified.
 - Rule of 55 is modeled as a warning and preservation constraint, not a full employer-plan withdrawal simulator.
 - Estate exposure is estimated, but after-tax estate optimization is not yet the primary optimizer target.
-- Heat maps exist for relocation scenarios, but not yet for Roth conversion amount by year.
-- Fixed conversion grid search exists, but it does not yet optimize a dynamic conversion schedule.
+- Roth conversion heat maps exist, but they are based on the first-pass greedy optimizer and should become richer as the optimizer matures.
+- Dynamic conversion optimization exists, but it is currently greedy by year rather than a full global dynamic-programming or mixed-integer solution.
 
 ## Main Change To Make
 
@@ -60,6 +62,8 @@ The next version should produce a dynamic Roth conversion schedule that changes 
 ## Phase 1: Dynamic Conversion Optimizer
 
 Goal: replace "same conversion every year" as the main recommendation with a year-by-year conversion schedule.
+
+Status: first-pass implementation started. The app now tests candidate conversion amounts for each eligible age, chooses the best value for the selected objective, and builds a dynamic schedule plus heat map. The next step is to make the candidate generation smarter around tax brackets, IRMAA thresholds, ACA cliffs, and RMD pressure.
 
 Tasks:
 

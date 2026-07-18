@@ -13,6 +13,7 @@ This project is built as an educational planning model. It is not tax, legal, in
 - Estimates federal income tax, long-term capital gain tax, qualified dividend treatment, NIIT, Medicare IRMAA, state income tax, local tax, property tax, ACA bridge premiums, and estate exposure.
 - Compares relocation scenarios against a Maryland baseline and estimates additional dollars per year available in each modeled state.
 - Runs fixed-conversion grid searches with constraints for marginal tax rate, IRMAA, and ending cash.
+- Builds a first-pass dynamic Roth conversion schedule with candidate heat maps by age.
 - Runs Monte Carlo simulations with random returns, bear-market stress scenarios, inflation shock, and dynamic spending guardrails.
 - Saves scenario summaries and exports full scenario packages for review.
 
@@ -66,7 +67,7 @@ pytest
 ## App Tabs
 
 - Executive Summary: headline recommendation, lifetime tax/healthcare/estate metrics, and the annual projection table.
-- Recommended Conversion Plan: annual Roth conversions plus fixed-conversion grid search.
+- Recommended Conversion Plan: annual Roth conversions, dynamic conversion optimization, heat maps, and fixed-conversion grid search.
 - Annual Cash Flow: full annual projection and CSV/Excel export.
 - Federal Taxes: federal tax, capital gains, qualified dividends, and NIIT views.
 - State Taxes: state income tax, local tax, and estimated property tax by year.

@@ -1,6 +1,6 @@
 from retirement_optimizer.models.household import Household
 from retirement_optimizer.optimization.deterministic import annualized_relocation_advantage, compare_conversion_strategies, compare_relocation_scenarios, recommend_strategy
-from retirement_optimizer.optimization.search import search_fixed_conversion_grid
+from retirement_optimizer.optimization.search import optimize_dynamic_conversion_schedule, search_fixed_conversion_grid
 
 
 def test_strategy_comparison_returns_all_strategies():
@@ -80,3 +80,48 @@ def test_fixed_conversion_grid_search_ranks_feasible_rows():
     assert len(grid) == 3
     assert "rank" in grid.columns
     assert grid["feasible"].any()
+
+
+def test_dynamic_conversion_optimizer_returns_schedule_and_heatmap():
+    household = Household(current_age=52, projection_end_age=58, retirement_age=52)
+
+    result = optimize_dynamic_conversion_schedule(
+        household,
+        objective="Minimize lifetime taxes",
+        start_age=52,
+        end_age=55,
+        max_conversion=100_000,
+        step=50_000,
+        preserve_rule_of_55=True,
+    )
+
+    assert {"schedule", "heatmap", "projection", "summary"}.issubset(result)
+    assert len(result["schedule"]) == 4
+    assert {"age", "selected_conversion", "objective_value"}.issubset(result["schedule"].columns)
+    assert {"age", "candidate_conversion", "objective_value"}.issubset(result["heatmap"].columns)
+
+
+def test_dynamic_conversion_optimizer_can_choose_different_annual_amounts():
+    household = Household(
+        current_age=52,
+        projection_end_age=75,
+        retirement_age=52,
+        pension_start_age=55,
+        pension_monthly=8_000,
+        social_security_start_age=62,
+        social_security_monthly=4_000,
+    )
+
+    result = optimize_dynamic_conversion_schedule(
+        household,
+        objective="Maximize Roth balance",
+        start_age=52,
+        end_age=60,
+        max_conversion=150_000,
+        step=75_000,
+        preserve_rule_of_55=True,
+        max_marginal_federal_rate=0.24,
+    )
+
+    conversions = result["schedule"]["selected_conversion"].tolist()
+    assert len(set(conversions)) > 1

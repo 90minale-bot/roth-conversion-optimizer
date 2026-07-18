@@ -26,7 +26,13 @@ def compare_conversion_strategies(
             max_conversion=max_conversion,
             preserve_rule_of_55=preserve_rule_of_55,
         ))
-        rows.append(asdict(summarize_results(df, name=strategy, strategy=strategy)))
+        row = asdict(summarize_results(df, name=strategy, strategy=strategy))
+        row["after_tax_estate_value"] = (
+            row["ending_estate_value"]
+            - row["estimated_federal_estate_tax"]
+            - row["estimated_state_estate_tax"]
+        )
+        rows.append(row)
     return pd.DataFrame(rows)
 
 
@@ -50,11 +56,15 @@ def recommend_strategy(
         row = comparison.sort_values("ending_roth", ascending=False).iloc[0]
     elif objective == "Minimize peak RMD":
         row = comparison.sort_values("peak_rmd", ascending=True).iloc[0]
+    elif objective == "Maximize after-tax estate value":
+        row = comparison.sort_values("after_tax_estate_value", ascending=False).iloc[0]
     elif objective == "Minimize taxes + healthcare":
         row = comparison.sort_values("total_lifetime_tax_and_healthcare", ascending=True).iloc[0]
     else:
         row = comparison.sort_values("total_lifetime_tax", ascending=True).iloc[0]
-    return ScenarioSummary(**row.to_dict())
+    data = row.to_dict()
+    data.pop("after_tax_estate_value", None)
+    return ScenarioSummary(**data)
 
 
 def compare_relocation_scenarios(
