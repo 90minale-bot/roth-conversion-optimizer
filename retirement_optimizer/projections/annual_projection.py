@@ -36,6 +36,8 @@ def project_household(
     fixed_conversion: float = 50_000,
     max_conversion: float = 250_000,
     preserve_rule_of_55: bool = True,
+    conversion_start_age: int = 52,
+    conversion_end_age: int = 75,
     conversion_schedule: dict[int, float] | None = None,
     return_provider: Callable[[int, int, str, object], float] | None = None,
     spending_growth_provider: Callable[[int, int, float], float] | None = None,
@@ -70,8 +72,11 @@ def project_household(
             withdrawals["traditional"] += extra_rmd
             hh.accounts["cash"].deposit(extra_rmd)
         ordinary_before_conversion = employment + pension + withdrawals["traditional"]
-        if conversion_schedule is not None and age in conversion_schedule:
-            planned_conversion = 0.0 if age < hh.retirement_age else float(conversion_schedule[age])
+        in_conversion_window = max(conversion_start_age, hh.retirement_age) <= age <= conversion_end_age
+        if not in_conversion_window:
+            planned_conversion = 0.0
+        elif conversion_schedule is not None and age in conversion_schedule:
+            planned_conversion = float(conversion_schedule[age])
             planned_conversion = min(max(planned_conversion, 0.0), max_conversion)
         else:
             planned_conversion = conversion_for_strategy(strategy, hh, ordinary_before_conversion, tax_year, age, fixed_conversion, max_conversion)

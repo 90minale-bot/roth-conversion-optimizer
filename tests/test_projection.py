@@ -57,6 +57,16 @@ def test_roth_conversions_start_at_retirement_age():
     assert df.loc[df["age"] == 55, "roth_conversion"].iloc[0] > 0
 
 
+def test_roth_conversions_stop_at_default_window_end():
+    household = Household(current_age=74, projection_end_age=90, retirement_age=55)
+
+    df = results_frame(project_household(household, strategy="Fixed annual conversion", fixed_conversion=60_000))
+
+    assert df.loc[df["age"] == 75, "roth_conversion"].iloc[0] > 0
+    assert df.loc[df["age"] == 76, "roth_conversion"].iloc[0] == 0
+    assert df.loc[df["age"] == 90, "roth_conversion"].iloc[0] == 0
+
+
 def test_employment_income_offsets_pre_retirement_withdrawals():
     household = Household(
         current_age=50,

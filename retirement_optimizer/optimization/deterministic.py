@@ -16,6 +16,8 @@ def compare_conversion_strategies(
     fixed_conversion: float,
     max_conversion: float,
     preserve_rule_of_55: bool,
+    conversion_start_age: int = 52,
+    conversion_end_age: int = 75,
 ) -> pd.DataFrame:
     rows = []
     for strategy in STRATEGIES:
@@ -25,6 +27,8 @@ def compare_conversion_strategies(
             fixed_conversion=fixed_conversion,
             max_conversion=max_conversion,
             preserve_rule_of_55=preserve_rule_of_55,
+            conversion_start_age=conversion_start_age,
+            conversion_end_age=conversion_end_age,
         ))
         row = asdict(summarize_results(df, name=strategy, strategy=strategy))
         row["after_tax_estate_value"] = (
@@ -43,12 +47,16 @@ def recommend_strategy(
     fixed_conversion: float,
     max_conversion: float,
     preserve_rule_of_55: bool,
+    conversion_start_age: int = 52,
+    conversion_end_age: int = 75,
 ) -> ScenarioSummary:
     comparison = compare_conversion_strategies(
         household,
         fixed_conversion=fixed_conversion,
         max_conversion=max_conversion,
         preserve_rule_of_55=preserve_rule_of_55,
+        conversion_start_age=conversion_start_age,
+        conversion_end_age=conversion_end_age,
     )
     if objective == "Maximize ending assets":
         row = comparison.sort_values("ending_assets", ascending=False).iloc[0]
@@ -76,6 +84,8 @@ def compare_relocation_scenarios(
     fixed_conversion: float,
     max_conversion: float,
     preserve_rule_of_55: bool,
+    conversion_start_age: int = 52,
+    conversion_end_age: int = 75,
 ) -> pd.DataFrame:
     rows = []
     for state in states:
@@ -87,6 +97,8 @@ def compare_relocation_scenarios(
                 fixed_conversion=fixed_conversion,
                 max_conversion=max_conversion,
                 preserve_rule_of_55=preserve_rule_of_55,
+                conversion_start_age=conversion_start_age,
+                conversion_end_age=conversion_end_age,
             ))
             summary = summarize_results(df, name=f"Move to {state} at {move_age}", strategy=strategy)
             row = asdict(summary)

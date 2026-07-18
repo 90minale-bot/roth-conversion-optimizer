@@ -18,6 +18,8 @@ def saved_scenario_row(
     fixed_conversion: float,
     max_conversion: float,
     preserve_rule_of_55: bool,
+    conversion_start_age: int = 52,
+    conversion_end_age: int = 75,
 ) -> dict[str, float | str]:
     df = results_frame(project_household(
         household,
@@ -25,6 +27,8 @@ def saved_scenario_row(
         fixed_conversion=fixed_conversion,
         max_conversion=max_conversion,
         preserve_rule_of_55=preserve_rule_of_55,
+        conversion_start_age=conversion_start_age,
+        conversion_end_age=conversion_end_age,
     ))
     return asdict(summarize_results(df, name=name, strategy=strategy))
 
@@ -52,6 +56,8 @@ def scenario_package(
     max_conversion: float,
     preserve_rule_of_55: bool,
     grid_step: float,
+    conversion_start_age: int = 52,
+    conversion_end_age: int = 75,
     max_search_federal_rate: float,
     max_search_irmaa: float,
     min_search_cash: float,
@@ -73,6 +79,8 @@ def scenario_package(
             "max_conversion": max_conversion,
             "preserve_rule_of_55": preserve_rule_of_55,
             "grid_step": grid_step,
+            "conversion_start_age": conversion_start_age,
+            "conversion_end_age": conversion_end_age,
             "max_search_federal_rate": max_search_federal_rate,
             "max_search_irmaa": max_search_irmaa,
             "min_search_cash": min_search_cash,

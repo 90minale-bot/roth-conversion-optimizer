@@ -9,7 +9,7 @@ This project is built as an educational planning model. It is not tax, legal, in
 - Projects annual retirement cash flow from the current age through the selected end age.
 - Models traditional 401(k), traditional IRA, Roth IRA, taxable brokerage, cash, and HSA balances.
 - Compares Roth conversion strategies, including no conversions, fixed annual conversions, bracket-fill conversions, and an aggressive pre-pension strategy.
-- Starts Roth conversions only at the modeled retirement age.
+- Starts Roth conversions only at the modeled retirement age and inside the selected conversion window, defaulting to ages 52 through 75.
 - Estimates federal income tax, long-term capital gain tax, qualified dividend treatment, NIIT, Medicare IRMAA, state income tax, local tax, property tax, ACA bridge premiums, and estate exposure.
 - Compares relocation scenarios against a Maryland baseline and estimates additional dollars per year available in each modeled state.
 - Runs fixed-conversion grid searches with constraints for marginal tax rate, IRMAA, and ending cash.

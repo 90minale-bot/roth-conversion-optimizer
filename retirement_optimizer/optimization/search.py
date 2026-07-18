@@ -72,6 +72,8 @@ def search_fixed_conversion_grid(
     max_conversion: float,
     step: float,
     preserve_rule_of_55: bool,
+    conversion_start_age: int = 52,
+    conversion_end_age: int = 75,
     max_marginal_federal_rate: float | None = None,
     max_annual_irmaa: float | None = None,
     min_ending_cash: float | None = None,
@@ -84,6 +86,8 @@ def search_fixed_conversion_grid(
             fixed_conversion=fixed_conversion,
             max_conversion=max_conversion,
             preserve_rule_of_55=preserve_rule_of_55,
+            conversion_start_age=conversion_start_age,
+            conversion_end_age=conversion_end_age,
         ))
         summary = _summary_row(
             df,
@@ -150,6 +154,8 @@ def optimize_dynamic_conversion_schedule(
                 fixed_conversion=0.0,
                 max_conversion=max_conversion,
                 preserve_rule_of_55=preserve_rule_of_55,
+                conversion_start_age=start_age,
+                conversion_end_age=end_age,
                 conversion_schedule=trial_schedule,
             ))
             summary = _summary_row(
@@ -193,6 +199,8 @@ def optimize_dynamic_conversion_schedule(
         fixed_conversion=0.0,
         max_conversion=max_conversion,
         preserve_rule_of_55=preserve_rule_of_55,
+        conversion_start_age=start_age,
+        conversion_end_age=end_age,
         conversion_schedule=schedule,
     ))
     final_summary = pd.DataFrame([_summary_row(

@@ -114,8 +114,8 @@ def sidebar_household() -> tuple[Household, str, str, float, float, bool, float,
     fixed_conversion = st.sidebar.number_input("Fixed annual Roth conversion", min_value=0.0, value=50_000.0, step=5_000.0)
     max_conversion = st.sidebar.number_input("Maximum annual Roth conversion", min_value=0.0, value=250_000.0, step=10_000.0)
     grid_step = st.sidebar.number_input("Grid search step", min_value=5_000.0, value=25_000.0, step=5_000.0)
-    dynamic_start_age = st.sidebar.number_input("Dynamic optimizer start age", 45, 75, 52)
-    dynamic_end_age = st.sidebar.number_input("Dynamic optimizer end age", 55, 85, 75)
+    dynamic_start_age = st.sidebar.number_input("Conversion window start age", 45, 75, 52)
+    dynamic_end_age = st.sidebar.number_input("Conversion window end age", 55, 85, 75)
     max_search_federal_rate = st.sidebar.slider("Grid max federal marginal rate", 0.10, 0.50, 0.24, 0.01)
     max_search_irmaa = st.sidebar.number_input("Grid max annual IRMAA", min_value=0.0, value=20_000.0, step=1_000.0)
     min_search_cash = st.sidebar.number_input("Grid minimum ending cash", min_value=0.0, value=0.0, step=5_000.0)
@@ -214,7 +214,15 @@ if "saved_scenario_packages" not in st.session_state:
     st.session_state.saved_scenario_packages = []
 
 household, strategy, objective, fixed_conversion, max_conversion, preserve_rule, grid_step, dynamic_start_age, dynamic_end_age, max_search_federal_rate, max_search_irmaa, min_search_cash, monte_carlo_runs, monte_carlo_volatility, monte_carlo_seed, stress_scenario, inflation_shock, spending_guardrail = sidebar_household()
-results = project_household(household, strategy=strategy, fixed_conversion=fixed_conversion, max_conversion=max_conversion, preserve_rule_of_55=preserve_rule)
+results = project_household(
+    household,
+    strategy=strategy,
+    fixed_conversion=fixed_conversion,
+    max_conversion=max_conversion,
+    preserve_rule_of_55=preserve_rule,
+    conversion_start_age=dynamic_start_age,
+    conversion_end_age=dynamic_end_age,
+)
 df = results_frame(results)
 summary = summarize(df)
 no_conversion_df = results_frame(project_household(household, strategy="No Roth conversions", preserve_rule_of_55=preserve_rule))
@@ -225,6 +233,8 @@ recommended = recommend_strategy(
     fixed_conversion=fixed_conversion,
     max_conversion=max_conversion,
     preserve_rule_of_55=preserve_rule,
+    conversion_start_age=dynamic_start_age,
+    conversion_end_age=dynamic_end_age,
 )
 
 tabs = st.tabs([
@@ -309,6 +319,8 @@ with tabs[1]:
         max_conversion=max_conversion,
         step=grid_step,
         preserve_rule_of_55=preserve_rule,
+        conversion_start_age=dynamic_start_age,
+        conversion_end_age=dynamic_end_age,
         max_marginal_federal_rate=max_search_federal_rate,
         max_annual_irmaa=max_search_irmaa,
         min_ending_cash=min_search_cash,
@@ -409,6 +421,8 @@ with tabs[5]:
         fixed_conversion=fixed_conversion,
         max_conversion=max_conversion,
         preserve_rule_of_55=preserve_rule,
+        conversion_start_age=dynamic_start_age,
+        conversion_end_age=dynamic_end_age,
     )
     best_move = grid.sort_values("total_lifetime_tax").iloc[0]
     st.success(f"Lowest modeled lifetime tax, including estimated property tax: move to {best_move['destination_state']} at age {int(best_move['move_age'])}")
@@ -510,6 +524,8 @@ with tabs[10]:
         fixed_conversion=fixed_conversion,
         max_conversion=max_conversion,
         preserve_rule_of_55=preserve_rule,
+        conversion_start_age=dynamic_start_age,
+        conversion_end_age=dynamic_end_age,
         simulations=monte_carlo_runs,
         volatility=monte_carlo_volatility,
         seed=monte_carlo_seed,
@@ -550,6 +566,8 @@ with tabs[11]:
         fixed_conversion=fixed_conversion,
         max_conversion=max_conversion,
         preserve_rule_of_55=preserve_rule,
+        conversion_start_age=dynamic_start_age,
+        conversion_end_age=dynamic_end_age,
     )
     st.subheader("Strategy Comparison")
     st.dataframe(scenario_df, width="stretch")
@@ -564,6 +582,8 @@ with tabs[11]:
             fixed_conversion=fixed_conversion,
             max_conversion=max_conversion,
             preserve_rule_of_55=preserve_rule,
+            conversion_start_age=dynamic_start_age,
+            conversion_end_age=dynamic_end_age,
         ))
     if st.session_state.saved_scenarios:
         saved_df = scenario_table(st.session_state.saved_scenarios)
@@ -579,6 +599,8 @@ with tabs[11]:
         max_conversion=max_conversion,
         preserve_rule_of_55=preserve_rule,
         grid_step=grid_step,
+        conversion_start_age=dynamic_start_age,
+        conversion_end_age=dynamic_end_age,
         max_search_federal_rate=max_search_federal_rate,
         max_search_irmaa=max_search_irmaa,
         min_search_cash=min_search_cash,
