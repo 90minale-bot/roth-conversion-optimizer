@@ -26,6 +26,10 @@ def money(value: float) -> str:
     return f"${value:,.0f}"
 
 
+def tab_summary(title: str, body: str) -> None:
+    st.info(f"**{title}**\n\n{body}")
+
+
 def sidebar_household() -> tuple[Household, str, str, float, float, bool, float, float, float, float, int, int, int, float, int, str, bool, bool]:
     st.sidebar.header("Personal")
     current_age = st.sidebar.number_input("Current age", 18, 100, 50)
@@ -239,6 +243,10 @@ tabs = st.tabs([
 ])
 
 with tabs[0]:
+    tab_summary(
+        "What this tab is for",
+        "A quick read on the selected plan: recommended conversion, lifetime tax drag, healthcare cliffs, ending assets, estate value, and the annual rows most likely to deserve attention.",
+    )
     first = df.iloc[0]
     cols = st.columns(4)
     cols[0].metric("This-year conversion", money(first["roth_conversion"]))
@@ -254,6 +262,10 @@ with tabs[0]:
     st.dataframe(df[["year", "age", "state", "roth_conversion", "federal_tax", "niit", "irmaa_surcharge", "aca_net_premium", "state_tax", "property_tax", "effective_tax_rate", "ending_traditional", "ending_roth", "warning"]], width="stretch")
 
 with tabs[1]:
+    tab_summary(
+        "What this tab is for",
+        "Compare Roth conversion approaches. Use the dynamic optimizer for a year-by-year schedule, then use the fixed grid search as a simple benchmark against steady annual conversions.",
+    )
     st.plotly_chart(px.bar(df, x="age", y="roth_conversion", title="Annual Roth Conversions"), width="stretch")
     st.dataframe(df[["year", "age", "roth_conversion", "remaining_bracket_capacity", "marginal_federal_rate", "marginal_state_rate", "ending_traditional", "ending_roth"]], width="stretch")
     st.subheader("Dynamic Conversion Optimizer")
@@ -329,6 +341,10 @@ with tabs[1]:
     ), width="stretch")
 
 with tabs[2]:
+    tab_summary(
+        "What this tab is for",
+        "Follow the money year by year. This tab separates income, withdrawals, taxes, property tax, healthcare premiums, planned spending, and the resulting spendable cash-flow surplus or shortfall.",
+    )
     st.subheader("Spendable Cash Flow")
     st.caption("Available spending after taxes shows modeled income plus portfolio withdrawals minus taxes, property tax, and ACA/Medicare premiums.")
     st.dataframe(df[[
@@ -361,16 +377,28 @@ with tabs[2]:
     st.download_button("Download Excel", to_excel_bytes(df), "annual_plan.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 with tabs[3]:
+    tab_summary(
+        "What this tab is for",
+        "Inspect the federal tax mechanics behind the plan, including AGI, taxable income, ordinary tax, capital-gain tax, NIIT, and remaining bracket capacity.",
+    )
     st.plotly_chart(px.bar(df, x="age", y="federal_tax", title="Federal Taxes By Year"), width="stretch")
     st.plotly_chart(px.bar(df, x="age", y=["federal_ordinary_tax", "federal_capital_gains_tax", "niit"], title="Federal Ordinary, Capital-Gain, And NIIT"), width="stretch")
     st.dataframe(df[["year", "age", "agi", "taxable_income", "qualified_dividends", "long_term_capital_gains", "federal_ordinary_tax", "federal_capital_gains_tax", "niit", "federal_tax", "remaining_bracket_capacity"]], width="stretch")
 
 with tabs[4]:
+    tab_summary(
+        "What this tab is for",
+        "Show how state income tax, local tax, and estimated property tax change over time based on your modeled state and relocation assumptions.",
+    )
     st.plotly_chart(px.bar(df, x="age", y="state_tax", color="state", title="State Taxes By Year"), width="stretch")
     st.plotly_chart(px.bar(df, x="age", y="property_tax", color="state", title="Estimated Property Taxes By Year"), width="stretch")
     st.dataframe(df[["year", "age", "state", "state_tax", "local_tax", "property_tax", "warning"]], width="stretch")
 
 with tabs[5]:
+    tab_summary(
+        "What this tab is for",
+        "Compare modeled relocation choices side by side. Maryland is the baseline, and the table estimates how much more or less annual cash may be available in each state scenario.",
+    )
     grid = compare_relocation_scenarios(
         household,
         states=STATES,
@@ -428,14 +456,26 @@ with tabs[5]:
     st.dataframe(grid, width="stretch")
 
 with tabs[6]:
+    tab_summary(
+        "What this tab is for",
+        "Track how each account bucket changes over time so you can see whether the plan is preserving liquidity, reducing traditional balances, and growing Roth assets.",
+    )
     balance_df = df.melt(id_vars=["year", "age"], value_vars=["ending_cash", "ending_taxable", "ending_traditional", "ending_roth"], var_name="Account", value_name="Balance")
     st.plotly_chart(px.line(balance_df, x="age", y="Balance", color="Account", title="Account Balances"), width="stretch")
 
 with tabs[7]:
+    tab_summary(
+        "What this tab is for",
+        "Estimate required minimum distributions and the remaining traditional balance that creates future forced taxable income.",
+    )
     st.plotly_chart(px.bar(df, x="age", y="rmd", title="Required Minimum Distributions"), width="stretch")
     st.dataframe(df[["year", "age", "rmd", "ending_traditional"]], width="stretch")
 
 with tabs[8]:
+    tab_summary(
+        "What this tab is for",
+        "Check healthcare-related tax cliffs: ACA bridge premiums and credits before Medicare, Medicare IRMAA after 65, and NIIT on investment income.",
+    )
     st.warning("ACA, Medicare IRMAA, and NIIT are planning estimates. Verify marketplace premiums, subsidy eligibility, Medicare notices, and tax rules before real decisions.")
     st.plotly_chart(px.bar(df, x="age", y=["aca_gross_premium", "aca_premium_tax_credit", "aca_net_premium"], title="ACA Bridge Premiums And Credits"), width="stretch")
     st.plotly_chart(px.bar(df, x="age", y="irmaa_surcharge", title="Estimated Medicare IRMAA Surcharge"), width="stretch")
@@ -443,6 +483,10 @@ with tabs[8]:
     st.dataframe(df[["year", "age", "agi", "aca_magi", "aca_fpl_percent", "aca_covered_people", "aca_gross_premium", "aca_premium_tax_credit", "aca_net_premium", "irmaa_lookback_magi", "medicare_people", "irmaa_surcharge", "qualified_dividends", "long_term_capital_gains", "niit", "warning"]], width="stretch")
 
 with tabs[9]:
+    tab_summary(
+        "What this tab is for",
+        "Review the projected estate value and rough federal/state estate exposure, with focus on how much wealth remains in taxable, traditional, and Roth buckets.",
+    )
     st.warning("Estate and inheritance tax values are planning estimates. Confirm federal exemptions, state estate tax rules, beneficiary relationships, portability, trusts, and titling with qualified professionals.")
     estate_cols = st.columns(3)
     estate_cols[0].metric("Projected estate value", money(summary["ending_estate_value"]))
@@ -453,6 +497,10 @@ with tabs[9]:
     st.dataframe(df[["year", "age", "state", "estimated_estate_value", "federal_estate_exposure", "estimated_federal_estate_tax", "state_estate_exposure", "estimated_state_estate_tax", "ending_traditional", "ending_roth", "ending_taxable", "warning"]], width="stretch")
 
 with tabs[10]:
+    tab_summary(
+        "What this tab is for",
+        "Stress-test the plan across randomized return paths and selected market shocks to see whether the strategy still works when returns do not arrive politely.",
+    )
     st.warning("Monte Carlo uses randomized annual account returns around each account's expected return. Tax rules remain simplified planning estimates.")
     mc_df = run_monte_carlo(
         household,
@@ -491,6 +539,10 @@ with tabs[10]:
     st.download_button("Download Monte Carlo results", mc_df.to_csv(index=False), "monte_carlo_results.csv", "text/csv")
 
 with tabs[11]:
+    tab_summary(
+        "What this tab is for",
+        "Compare strategies, save scenario snapshots, and export the full setup to JSON so different assumptions can be reviewed later.",
+    )
     scenario_df = compare_conversion_strategies(
         household,
         fixed_conversion=fixed_conversion,
@@ -568,6 +620,10 @@ with tabs[11]:
         )
 
 with tabs[12]:
+    tab_summary(
+        "What this tab is for",
+        "Expose the bundled tax assumptions behind the model so the federal and state inputs can be reviewed instead of hidden inside the code.",
+    )
     st.subheader("Federal")
     st.json(json.loads((PROJECT_ROOT / "tax_data" / "federal" / "2026.json").read_text()))
     st.subheader("Phase 3 Tax-Like Costs")
@@ -580,6 +636,10 @@ with tabs[12]:
             st.json(json.loads((PROJECT_ROOT / "tax_data" / "states" / state / "2026.json").read_text()))
 
 with tabs[13]:
+    tab_summary(
+        "What this tab is for",
+        "Collect model caveats and year-specific warnings in one place, so assumptions and simplifications are visible before anyone treats the output too seriously.",
+    )
     warnings = sorted({w for w in df["warning"] if isinstance(w, str) and w})
     st.warning("This application is not tax, legal, investment, or benefits advice. Confirm tax data and employer plan rules with qualified professionals.")
     st.write("Incomplete rules after Phase 3B: ACA Medicaid eligibility, state-specific marketplace rules, local taxes, estate and inheritance taxes, parcel-level property taxes, detailed lot-level capital gains, full partial-year residency, and full mathematical optimizer search.")
