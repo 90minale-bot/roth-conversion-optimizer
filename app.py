@@ -239,9 +239,9 @@ tabs = st.tabs([
 with tabs[0]:
     first = df.iloc[0]
     cols = st.columns(4)
-    cols[0].metric("Recommended conversion this year", money(first["roth_conversion"]))
-    cols[1].metric("Lifetime federal tax", money(summary["federal_tax"] + summary["niit"]))
-    cols[2].metric("Lifetime hidden cliffs", money(summary["irmaa"] + summary["niit"]))
+    cols[0].metric("This-year conversion", money(first["roth_conversion"]))
+    cols[1].metric("Federal tax", money(summary["federal_tax"] + summary["niit"]))
+    cols[2].metric("Hidden cliffs", money(summary["irmaa"] + summary["niit"]))
     cols[3].metric("Ending assets", money(summary["ending_assets"]))
     st.metric("Projected estate value", money(summary["ending_estate_value"]))
     st.metric("Lifetime state income tax", money(summary["state_tax"]))
