@@ -58,10 +58,12 @@ def project_household(
         employment = hh.employment_income + hh.spouse_income if age < hh.retirement_age else 0.0
         pension = hh.pension_monthly * 12 if age >= hh.pension_start_age else 0.0
         social_security = hh.social_security_monthly * 12 if age >= hh.social_security_start_age else 0.0
+        income_available_for_cash_flow = employment + pension + social_security
         property_tax = estimate_property_tax(hh, state, offset)
         qualified_dividends = min(hh.qualified_dividends * ((1.0 + hh.inflation) ** offset), hh.accounts["taxable"].balance * 0.04)
         long_term_capital_gains = hh.long_term_capital_gains + hh.accounts["taxable"].balance * hh.taxable_turnover_rate
-        withdrawals = fund_spending(hh, max(0.0, spending + property_tax - pension - social_security), age)
+        pre_tax_cash_need = spending + property_tax
+        withdrawals = fund_spending(hh, max(0.0, pre_tax_cash_need - income_available_for_cash_flow), age)
         if rmd > withdrawals["traditional"]:
             extra_rmd = hh.accounts["traditional_ira"].withdraw(rmd - withdrawals["traditional"])
             withdrawals["traditional"] += extra_rmd
@@ -137,7 +139,8 @@ def project_household(
             married=hh.filing_status == "married_joint",
         )
         tax_payment = fed.total_tax + niit.tax + irmaa.surcharge + state_tax.state_tax + state_tax.local_tax
-        tax_withdrawals = fund_spending(hh, tax_payment, age)
+        income_available_for_tax = max(0.0, income_available_for_cash_flow - pre_tax_cash_need)
+        tax_withdrawals = fund_spending(hh, max(0.0, tax_payment - income_available_for_tax), age)
         withdrawals["cash"] += tax_withdrawals["cash"]
         withdrawals["taxable"] += tax_withdrawals["taxable"]
         withdrawals["traditional"] += tax_withdrawals["traditional"]
@@ -149,7 +152,7 @@ def project_household(
             irmaa.warning,
             estate.warning,
             "Property tax uses state-level estimated effective rates; actual bills depend on county, municipality, exemptions, and assessment rules.",
-            "Cash and taxable assets depleted before all spending/taxes were funded." if sum(tax_withdrawals.values()) + pension + social_security + sum(withdrawals.values()) < spending + property_tax + tax_payment else "",
+            "Cash and taxable assets depleted before all spending/taxes were funded." if sum(tax_withdrawals.values()) + income_available_for_cash_flow + sum(withdrawals.values()) < spending + property_tax + tax_payment else "",
         ]))
         results.append(AnnualResult(
             year=year,

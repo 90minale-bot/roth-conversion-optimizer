@@ -55,3 +55,24 @@ def test_roth_conversions_start_at_retirement_age():
     assert df.loc[df["age"] == 53, "roth_conversion"].iloc[0] == 0
     assert df.loc[df["age"] == 54, "roth_conversion"].iloc[0] == 0
     assert df.loc[df["age"] == 55, "roth_conversion"].iloc[0] > 0
+
+
+def test_employment_income_offsets_pre_retirement_withdrawals():
+    household = Household(
+        current_age=50,
+        projection_end_age=50,
+        retirement_age=55,
+        employment_income=200_000,
+        annual_spending=100_000,
+        property_value=0,
+        qualified_dividends=0,
+        long_term_capital_gains=0,
+        taxable_turnover_rate=0,
+        include_relocation=False,
+    )
+
+    df = results_frame(project_household(household, strategy="No Roth conversions"))
+
+    assert df.loc[0, "taxable_withdrawals"] == 0
+    assert df.loc[0, "traditional_withdrawals"] == 0
+    assert df.loc[0, "roth_withdrawals"] == 0
