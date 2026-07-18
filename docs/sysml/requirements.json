@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0",
+  "source_model": "docs/sysml/retirement_conversion_optimizer_diagram_views.sysml",
+  "purpose": "Regression contract linking SysML design requirements to pytest verification cases.",
+  "requirements": [
+    {
+      "id": "REQ-CONV-001",
+      "title": "Roth conversions start at retirement",
+      "statement": "The projection shall not perform Roth conversions before the household retirement age, even when the configured conversion window starts earlier.",
+      "sysml_elements": ["RetirementTimeline", "ConversionPolicy", "OptimizeRothConversions", "taxCalculationPipelineView"],
+      "verification": {
+        "method": "pytest",
+        "pytest": "tests/test.py::test_req_conv_001_conversions_start_at_retirement"
+      }
+    },
+    {
+      "id": "REQ-CONV-002",
+      "title": "Roth conversions end at configured conversion end age",
+      "statement": "The projection shall set Roth conversions to zero after the configured conversion end age.",
+      "sysml_elements": ["RetirementTimeline", "ConversionPolicy", "OptimizeRothConversions"],
+      "verification": {
+        "method": "pytest",
+        "pytest": "tests/test.py::test_req_conv_002_conversions_stop_after_end_age"
+      }
+    },
+    {
+      "id": "REQ-CASH-001",
+      "title": "Available spending formula is conserved",
+      "statement": "Available spending after taxes shall equal total income plus withdrawals less total taxes, property tax, and net ACA premiums, floored at zero.",
+      "sysml_elements": ["AnnualCashFlow", "ProjectAnnualCashFlow", "CalculateFederalTaxes", "CalculateStateTaxes", "CalculateHealthcareCliffs"],
+      "verification": {
+        "method": "pytest",
+        "pytest": "tests/test.py::test_req_cash_001_available_spending_formula"
+      }
+    },
+    {
+      "id": "REQ-STATE-001",
+      "title": "Maryland remains the relocation baseline",
+      "statement": "Relocation comparison shall calculate additional dollars per year against Maryland and report Maryland as zero versus itself.",
+      "sysml_elements": ["StateAssumptions", "RelocationResult", "CompareRetirementStates", "relocationComparisonFlowView"],
+      "verification": {
+        "method": "pytest",
+        "pytest": "tests/test.py::test_req_state_001_maryland_relocation_baseline"
+      }
+    },
+    {
+      "id": "REQ-STATE-002",
+      "title": "Relocation states are limited to modeled tax data",
+      "statement": "Relocation comparison shall only use states with available state tax data files in the analysis dataset.",
+      "sysml_elements": ["StateAssumptions", "StateTaxDataSource", "RelocationModel"],
+      "verification": {
+        "method": "pytest",
+        "pytest": "tests/test.py::test_req_state_002_modeled_state_tax_files_exist"
+      }
+    },
+    {
+      "id": "REQ-OPT-001",
+      "title": "Dynamic optimizer produces schedule and heat map",
+      "statement": "Dynamic Roth conversion optimization shall return a selected annual schedule and a candidate heat map bounded by the retirement and conversion window.",
+      "sysml_elements": ["OptimizeRothConversions", "ConversionPolicy", "DynamicConversionOptimizer", "taxCalculationPipelineView"],
+      "verification": {
+        "method": "pytest",
+        "pytest": "tests/test.py::test_req_opt_001_dynamic_optimizer_outputs_schedule_and_heatmap"
+      }
+    },
+    {
+      "id": "REQ-OBJ-001",
+      "title": "After-tax estate value is an optimization objective",
+      "statement": "Strategy comparison shall calculate after-tax estate value as ending estate value less estimated federal and state estate taxes.",
+      "sysml_elements": ["EstateValue", "EstimateEstateValue", "DynamicConversionOptimizer"],
+      "verification": {
+        "method": "pytest",
+        "pytest": "tests/test.py::test_req_obj_001_after_tax_estate_value_is_reported"
+      }
+    },
+    {
+      "id": "REQ-RMD-001",
+      "title": "RMD forecast is present in annual projection",
+      "statement": "Annual projection shall report required minimum distribution values by age so conversion decisions can account for future RMD exposure.",
+      "sysml_elements": ["RmdForecast", "CalculateRmdForecast", "ProjectAnnualCashFlow"],
+      "verification": {
+        "method": "pytest",
+        "pytest": "tests/test.py::test_req_rmd_001_projection_reports_rmd_forecast"
+      }
+    }
+  ]
+}
+

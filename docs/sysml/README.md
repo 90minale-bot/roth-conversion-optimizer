@@ -5,9 +5,10 @@ This folder contains a starter SysML v2 textual model for Eclipse SysON:
 ```text
 retirement_conversion_optimizer.sysml
 retirement_conversion_optimizer_diagram_views.sysml
+requirements.json
 ```
 
-Use `retirement_conversion_optimizer_diagram_views.sysml` first if you want a cleaner SysON diagramming experience. It breaks the design into smaller view-oriented elements that are easier to drag onto diagrams.
+Use `retirement_conversion_optimizer_diagram_views.sysml` first if you want a cleaner SysON diagramming experience. It breaks the design into smaller view-oriented elements that are easier to drag onto diagrams. Use `requirements.json` as the machine-readable regression contract that maps design requirements to pytest checks.
 
 ## What The Model Documents
 
@@ -46,11 +47,26 @@ After importing `retirement_conversion_optimizer_diagram_views.sysml`, expand th
 - `applicationArchitectureView`
 - `taxEngineView`
 - `optimizationFlowView`
+- `userWorkflowView`
+- `inputAssumptionsView`
+- `taxCalculationPipelineView`
+- `requirementsAndVerificationView`
+- `verificationContractView`
 - `relocationComparisonFlowView`
 - `monteCarloFlowView`
 
+## Current Modeling Detail
+
+The diagram-friendly model now includes:
+
+- Item attributes for household inputs, account balances, income sources, timelines, federal tax assumptions, state assumptions, healthcare assumptions, cash flow, tax results, RMD forecasts, relocation results, Monte Carlo results, scenarios, and export artifacts.
+- Action inputs and outputs for the end-to-end optimization pipeline.
+- Component ports for the Streamlit app, sidebar, projection engine, tax engine, optimizer, relocation model, Monte Carlo simulator, scenario store, export service, and tax data store.
+- Separate view anchors for user workflow, input assumptions, tax calculation pipeline, relocation comparison, Monte Carlo analysis, and requirements verification.
+- A requirements.json contract that maps design requirements to tests/test.py regression checks.
+
 ## Next Modeling Pass
 
-- Add requirement elements once the SysON workspace confirms the supported textual requirement syntax.
-- Add more detailed item attributes for balances, taxes, MAGI, RMDs, and spendable cash flow.
-- Add views for external systems such as IRS tax data sources, Streamlit Cloud, and GitHub.
+- Add formal requirement elements once the SysON workspace confirms the supported textual requirement syntax.
+- Add constraint equations for bracket filling, IRMAA thresholds, ACA subsidy cliffs, RMD calculations, and after-tax estate value.
+- Add more explicit state-specific tax rule tables for Illinois, Maryland, Pennsylvania, Delaware, Virginia, and Florida.
