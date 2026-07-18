@@ -194,13 +194,15 @@ st.set_page_config(page_title="Retirement Tax Optimizer", layout="wide")
 st.title("Retirement Rollover And Roth Conversion Optimizer")
 st.caption("Planning and educational baseline only. Recommendations are estimates, not guarantees or tax advice.")
 
-with st.expander("How to use this with your own information", expanded=True):
+with st.expander("Update default input", expanded=True):
     st.markdown(
         """
-        1. Start in the left sidebar and replace the default ages, account balances, income, spending, and state assumptions with your own numbers.
+        1. Start in the left sidebar and update the default input: ages, account balances, income, spending, and state assumptions.
         2. Choose a Roth conversion strategy, or use the grid search to compare fixed annual conversion amounts.
         3. Review the Executive Summary first, then check the conversion plan, tax tabs, ACA/Medicare tab, relocation comparison, and Monte Carlo results.
         4. Use Scenario Comparison to save versions as you change assumptions, then download CSV, Excel, or JSON outputs for later review.
+
+        Only a few states are modeled for relocation comparison right now: Illinois, Pennsylvania, Maryland, Delaware, Virginia, and Florida.
 
         This is a planning model, not personalized tax, investment, legal, or benefits advice. Treat the output as a conversation starter for your own analysis or for a qualified professional.
         """
