@@ -7,7 +7,7 @@ def test_projection_runs_to_end_age_and_exports_columns():
     results = project_household(household, strategy="No Roth conversions")
     df = results_frame(results)
     assert len(df) == 6
-    assert {"federal_tax", "niit", "irmaa_surcharge", "aca_net_premium", "aca_premium_tax_credit", "estimated_estate_value", "state_tax", "ending_traditional", "ending_roth"}.issubset(df.columns)
+    assert {"federal_tax", "niit", "irmaa_surcharge", "aca_net_premium", "aca_premium_tax_credit", "estimated_estate_value", "state_tax", "ending_traditional", "ending_roth", "available_spending_after_taxes", "spending_surplus_shortfall"}.issubset(df.columns)
 
 
 def test_fill_22_strategy_converts_some_amount():
@@ -76,3 +76,23 @@ def test_employment_income_offsets_pre_retirement_withdrawals():
     assert df.loc[0, "taxable_withdrawals"] == 0
     assert df.loc[0, "traditional_withdrawals"] == 0
     assert df.loc[0, "roth_withdrawals"] == 0
+
+
+def test_available_spending_after_taxes_is_reported():
+    household = Household(
+        current_age=55,
+        projection_end_age=55,
+        retirement_age=55,
+        annual_spending=100_000,
+        property_value=0,
+        aca_benchmark_premium_monthly=0,
+        qualified_dividends=0,
+        long_term_capital_gains=0,
+        taxable_turnover_rate=0,
+        include_relocation=False,
+    )
+
+    df = results_frame(project_household(household, strategy="No Roth conversions"))
+
+    assert df.loc[0, "available_spending_after_taxes"] >= df.loc[0, "spending"]
+    assert df.loc[0, "spending_surplus_shortfall"] >= 0

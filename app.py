@@ -329,6 +329,33 @@ with tabs[1]:
     ), width="stretch")
 
 with tabs[2]:
+    st.subheader("Spendable Cash Flow")
+    st.caption("Available spending after taxes shows modeled income plus portfolio withdrawals minus taxes, property tax, and ACA/Medicare premiums.")
+    st.dataframe(df[[
+        "year",
+        "age",
+        "state",
+        "total_income",
+        "total_withdrawals",
+        "total_taxes",
+        "property_tax",
+        "aca_net_premium",
+        "available_spending_after_taxes",
+        "spending",
+        "spending_surplus_shortfall",
+        "cash_withdrawals",
+        "taxable_withdrawals",
+        "traditional_withdrawals",
+        "roth_withdrawals",
+    ]], width="stretch")
+    st.plotly_chart(px.bar(
+        df,
+        x="age",
+        y=["available_spending_after_taxes", "spending"],
+        title="Available Spending After Taxes And Healthcare vs Planned Spending",
+        barmode="group",
+    ), width="stretch")
+    st.subheader("Full Annual Projection")
     st.dataframe(df, width="stretch")
     st.download_button("Download CSV", df.to_csv(index=False), "annual_plan.csv", "text/csv")
     st.download_button("Download Excel", to_excel_bytes(df), "annual_plan.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")

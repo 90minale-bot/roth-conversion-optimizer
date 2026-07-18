@@ -144,12 +144,18 @@ def project_household(
             married=hh.filing_status == "married_joint",
         )
         tax_payment = fed.total_tax + niit.tax + irmaa.surcharge + state_tax.state_tax + state_tax.local_tax
+        total_healthcare_premiums = aca.net_premium
         income_available_for_tax = max(0.0, income_available_for_cash_flow - pre_tax_cash_need)
-        tax_withdrawals = fund_spending(hh, max(0.0, tax_payment - income_available_for_tax), age)
+        tax_withdrawals = fund_spending(hh, max(0.0, tax_payment + total_healthcare_premiums - income_available_for_tax), age)
         withdrawals["cash"] += tax_withdrawals["cash"]
         withdrawals["taxable"] += tax_withdrawals["taxable"]
         withdrawals["traditional"] += tax_withdrawals["traditional"]
         withdrawals["roth"] += tax_withdrawals["roth"]
+        total_income = income_available_for_cash_flow
+        total_withdrawals = sum(withdrawals.values())
+        total_taxes = tax_payment
+        available_spending_after_taxes = max(0.0, total_income + total_withdrawals - total_taxes - property_tax - total_healthcare_premiums)
+        spending_surplus_shortfall = available_spending_after_taxes - spending
         warning = "; ".join(filter(None, [
             rule_of_55_warning(age, hh.retirement_age, hh.accounts["employer_401k"].balance, hh.preserve_rule_of_55_amount if preserve_rule_of_55 else 0.0),
             state_tax.warning,
@@ -157,7 +163,7 @@ def project_household(
             irmaa.warning,
             estate.warning,
             "Property tax uses state-level estimated effective rates; actual bills depend on county, municipality, exemptions, and assessment rules.",
-            "Cash and taxable assets depleted before all spending/taxes were funded." if sum(tax_withdrawals.values()) + income_available_for_cash_flow + sum(withdrawals.values()) < spending + property_tax + tax_payment else "",
+            "Cash and taxable assets depleted before all spending/taxes were funded." if total_income + total_withdrawals < spending + property_tax + total_taxes + total_healthcare_premiums else "",
         ]))
         results.append(AnnualResult(
             year=year,
@@ -193,6 +199,11 @@ def project_household(
             local_tax=state_tax.local_tax,
             property_tax=property_tax,
             spending=spending,
+            total_income=total_income,
+            total_withdrawals=total_withdrawals,
+            total_taxes=total_taxes,
+            available_spending_after_taxes=available_spending_after_taxes,
+            spending_surplus_shortfall=spending_surplus_shortfall,
             ending_cash=hh.accounts["cash"].balance,
             ending_taxable=hh.accounts["taxable"].balance,
             ending_traditional=hh.accounts["traditional_ira"].balance + hh.accounts["employer_401k"].balance,

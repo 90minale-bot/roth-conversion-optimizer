@@ -38,6 +38,11 @@ class AnnualResult:
     local_tax: float
     property_tax: float
     spending: float
+    total_income: float
+    total_withdrawals: float
+    total_taxes: float
+    available_spending_after_taxes: float
+    spending_surplus_shortfall: float
     ending_cash: float
     ending_taxable: float
     ending_traditional: float
