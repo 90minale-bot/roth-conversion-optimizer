@@ -4,7 +4,10 @@ This folder contains a starter SysML v2 textual model for Eclipse SysON:
 
 ```text
 retirement_conversion_optimizer.sysml
+retirement_conversion_optimizer_diagram_views.sysml
 ```
+
+Use `retirement_conversion_optimizer_diagram_views.sysml` first if you want a cleaner SysON diagramming experience. It breaks the design into smaller view-oriented elements that are easier to drag onto diagrams.
 
 ## What The Model Documents
 
@@ -22,7 +25,7 @@ retirement_conversion_optimizer.sysml
 
 1. Open your SysON project.
 2. In the Explorer view, click the upload model icon.
-3. Select `retirement_conversion_optimizer.sysml`.
+3. Select `retirement_conversion_optimizer_diagram_views.sysml` for the easiest visual walkthrough, or `retirement_conversion_optimizer.sysml` for the full starter model.
 4. Upload it as a model.
 5. Use SysON diagrams/views to create graphical views from the imported package.
 
@@ -34,6 +37,17 @@ The file is intentionally standalone and does not require third-party SysML libr
 - Logical Architecture: UI tabs, projection engine, tax engine, optimizer, simulator, scenario store, and export service.
 - Activity/Data Flow: update inputs, project annual plan, optimize conversions, compare states, run Monte Carlo, save/export results.
 - Data Model: household inputs, account balances, tax assumptions, conversion window, annual projection, scenario package, and exports.
+
+## Diagram-Friendly Elements
+
+After importing `retirement_conversion_optimizer_diagram_views.sysml`, expand the package and drag these elements onto separate SysON views:
+
+- `systemContextView`
+- `applicationArchitectureView`
+- `taxEngineView`
+- `optimizationFlowView`
+- `relocationComparisonFlowView`
+- `monteCarloFlowView`
 
 ## Next Modeling Pass
 
