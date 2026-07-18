@@ -129,6 +129,7 @@ Use the same schema as the existing state files. The state tax engine reads stat
 ## Practical Next Enhancements
 
 The detailed roadmap is tracked in [DEVELOPMENT_PLAN.md](DEVELOPMENT_PLAN.md).
+The starter SysML v2 design model for Eclipse SysON is in [docs/sysml](docs/sysml).
 
 - Make uploaded scenario JSON fully restore sidebar inputs.
 - Add more detailed state retirement-income exclusions.
